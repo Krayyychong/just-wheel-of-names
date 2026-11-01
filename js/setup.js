@@ -8,10 +8,12 @@ import { downloadStateAsFile, pickFile, parseImport } from './io.js';
 
 let state;
 let onStartEvent;
+let onStateChangeCb;
 
-export function initSetup(initialState, { onStart }) {
+export function initSetup(initialState, { onStart, onStateChange } = {}) {
   state = initialState;
   onStartEvent = onStart;
+  onStateChangeCb = onStateChange || (() => {});
 
   wireEntriesInput();
   wireModeTabs();
@@ -382,6 +384,7 @@ function renderAll() {
   document.getElementById('entry-count').textContent = state.entries.length;
   renderPrizes();
   renderValidation();
+  onStateChangeCb();
 }
 
 function escapeHtml(s) {

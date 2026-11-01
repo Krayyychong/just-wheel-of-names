@@ -54,6 +54,9 @@ body.view-live  .top-bar { display: none; }
   color: white;
   box-shadow: 0 2px 8px rgba(255, 51, 102, 0.3);
 }
+.view-toggle button:disabled {
+  color: #d1d5db; cursor: not-allowed;
+}
 .autosave {
   font-size: 12px; color: #6b7280; font-weight: 500;
   transition: opacity 0.3s;

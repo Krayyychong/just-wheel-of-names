@@ -34,6 +34,10 @@ function renderCurrent() {
   const idx = state.currentPrizeIndex;
   const prize = currentPrize();
 
+  if (state.prizes.length === 0 || state.entries.length === 0) {
+    renderNoSetup();
+    return;
+  }
   if (!prize) {
     renderEventComplete();
     return;
@@ -42,8 +46,10 @@ function renderCurrent() {
   document.getElementById('progress-pill').textContent =
     `PRIZE ${idx + 1} OF ${state.prizes.length}`;
   document.getElementById('prize-tag').textContent = 'Up Next';
+  document.getElementById('prize-tag').hidden = false;
   document.getElementById('prize-name').textContent =
     prize.label || `Prize ${idx + 1}`;
+  document.querySelector('.pointer').hidden = false;
 
   const pool = computeCurrentPool(idx);
   document.getElementById('pool-count').textContent = pool.length;
@@ -59,11 +65,30 @@ function renderCurrent() {
   document.getElementById('winner-dialog').hidden = true;
 }
 
+function renderNoSetup() {
+  document.getElementById('progress-pill').textContent = 'NO SETUP YET';
+  document.getElementById('prize-tag').hidden = true;
+  document.getElementById('prize-name').textContent =
+    'Add contestants and prizes in Setup first';
+
+  document.getElementById('wheel-svg').innerHTML = '';
+  document.querySelector('.pointer').hidden = true;
+  document.getElementById('pool-count').textContent = state.entries.length;
+
+  const spinBtn = document.getElementById('spin-btn');
+  spinBtn.disabled = false;
+  spinBtn.textContent = 'GO TO SETUP';
+  document.getElementById('winner-dialog').hidden = true;
+}
+
 function renderEventComplete() {
   document.getElementById('progress-pill').textContent =
     `ALL ${state.prizes.length} PRIZES AWARDED`;
   document.getElementById('prize-tag').textContent = 'Event Complete';
+  document.getElementById('prize-tag').hidden = false;
   document.getElementById('prize-name').textContent = '🎉 Thanks for playing';
+  document.querySelector('.pointer').hidden = true;
+  document.getElementById('wheel-svg').innerHTML = '';
   document.getElementById('pool-count').textContent =
     state.entries.length - state.winners.length;
 
@@ -75,6 +100,11 @@ function renderEventComplete() {
 
 async function onSpin() {
   if (spinning) return;
+  // No-setup state: button acts as "Go to Setup" shortcut.
+  if (state.prizes.length === 0 || state.entries.length === 0) {
+    document.querySelector('[data-view="setup"]').click();
+    return;
+  }
   const idx = state.currentPrizeIndex;
   const prize = currentPrize();
   if (!prize) return;
