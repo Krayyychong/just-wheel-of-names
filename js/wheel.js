@@ -36,17 +36,17 @@ export function renderWheel(svgEl, names) {
     g.appendChild(path);
   }
 
-  // Radial text: each name reads along its segment's spoke, from near the hub
-  // outward. This uses the full radial length (~95 units) instead of the much
-  // smaller chord width, letting more characters fit per name.
-  //
-  // Font height is capped so neighboring labels don't overlap at mid-radius:
-  //   chord(midRadius) ≈ 2 * midRadius * sin(π / n)
-  const midRadius = 70;
-  const chordAtMid = 2 * midRadius * Math.sin(Math.PI / n);
-  const fontSize = clamp(5, 11, chordAtMid * 0.5);
-  const textStartR = 42;              // just outside the hub
-  const textLengthBudget = 140 - textStartR - 4;
+  // Radial text: each name reads along its segment's spoke, anchored at the
+  // OUTER rim and extending inward. Segments are widest at the rim, so this
+  // gives neighbouring labels more vertical breathing room than placing them
+  // near the hub. Font height is based on the chord at r≈100 (a representative
+  // text position) so neighbours don't collide.
+  const textRadiusForSizing = 100;
+  const chordAtText = 2 * textRadiusForSizing * Math.sin(Math.PI / n);
+  const fontSize = clamp(6, 13, chordAtText * 0.55);
+  const textEndR = 135;                 // just inside the rim
+  const innerSafeR = 46;                // keep clear of the hub
+  const textLengthBudget = textEndR - innerSafeR;
   const maxChars = Math.max(6, Math.floor(textLengthBudget / (fontSize * 0.55)));
 
   for (let i = 0; i < n; i++) {
@@ -55,9 +55,9 @@ export function renderWheel(svgEl, names) {
     // rotate(center - 90) aligns +x of the text with the segment's outward
     // radial direction (our angle 0 = up, SVG rotate 0 = right).
     text.setAttribute('transform', `rotate(${center - 90})`);
-    text.setAttribute('x', String(textStartR));
+    text.setAttribute('x', String(textEndR));
     text.setAttribute('y', '0');
-    text.setAttribute('text-anchor', 'start');
+    text.setAttribute('text-anchor', 'end');
     text.setAttribute('dominant-baseline', 'middle');
     text.setAttribute('font-size', fontSize);
     text.setAttribute('font-family', '-apple-system, BlinkMacSystemFont, sans-serif');
