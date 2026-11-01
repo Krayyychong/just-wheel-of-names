@@ -52,6 +52,16 @@ function wireModeTabs() {
       textarea.dispatchEvent(new Event('input'));
     });
   });
+
+  // When the user picks a different column, re-parse the contestant list from
+  // that column and re-render the prize cards so their preset-winner dropdowns
+  // reflect the updated contestants.
+  document.getElementById('csv-column').addEventListener('change', () => {
+    const text = document.getElementById('entries-input').value;
+    state.entries = parseCsv(text, currentCsvColumn());
+    renderAll();
+    debouncedSave(state);
+  });
 }
 
 function currentMode() {
@@ -77,11 +87,10 @@ function parseNames(text) {
 }
 
 function parseCsv(text, columnIndex) {
-  const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
+  const lines = text.split('\n').map((l) => l.trimEnd()).filter((l) => l.trim());
   if (lines.length === 0) return [];
-  const rows = lines.map(splitCsvLine);
-  // Skip header row if the chosen column cell doesn't look like a name
-  // (heuristic: treat as header if row 0 cell equals the column label)
+  const delimiter = detectDelimiter(text);
+  const rows = lines.map((line) => line.split(delimiter).map((c) => c.trim()));
   const startIdx = looksLikeHeader(rows[0]) ? 1 : 0;
   const seen = new Set();
   const out = [];
@@ -95,10 +104,17 @@ function parseCsv(text, columnIndex) {
   return out;
 }
 
-function splitCsvLine(line) {
-  // Minimal CSV: split on comma. Doesn't handle quoted commas; sufficient
-  // for typical contestant lists exported from spreadsheets.
-  return line.split(',').map((c) => c.trim());
+function detectDelimiter(text) {
+  // Pick whichever delimiter appears most in the first line. Tabs are most
+  // common when pasting from Excel/Sheets; commas when pasting a CSV file.
+  const firstLine = text.split('\n')[0] || '';
+  const counts = {
+    '\t': (firstLine.match(/\t/g) || []).length,
+    ',': (firstLine.match(/,/g) || []).length,
+    ';': (firstLine.match(/;/g) || []).length,
+  };
+  const best = Object.entries(counts).sort((a, b) => b[1] - a[1])[0];
+  return best[1] > 0 ? best[0] : ',';
 }
 
 function looksLikeHeader(row) {
@@ -109,7 +125,8 @@ function looksLikeHeader(row) {
 function refreshCsvPicker(text) {
   const picker = document.getElementById('csv-column');
   const firstLine = text.split('\n')[0] || '';
-  const cells = splitCsvLine(firstLine);
+  const delimiter = detectDelimiter(text);
+  const cells = firstLine.split(delimiter).map((c) => c.trim());
   const current = picker.value;
   picker.innerHTML = '';
   cells.forEach((cell, idx) => {
