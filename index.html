@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pickwheel</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body class="view-setup">
+
+  <header class="top-bar">
+    <div class="brand">PICKWHEEL</div>
+    <nav class="view-toggle">
+      <button data-view="setup" class="active">Setup</button>
+      <button data-view="live">Live</button>
+    </nav>
+    <div class="autosave" id="autosave-indicator">Autosaved ✓</div>
+  </header>
+
+  <!-- SETUP VIEW -->
+  <main class="setup-view">
+    <div class="grid">
+      <section class="panel entries-panel">
+        <h4>Contestants</h4>
+        <p class="hint">Paste names (one per line) or switch to CSV mode and pick the name column.</p>
+        <div class="mode-tabs">
+          <button data-mode="names" class="on">Names</button>
+          <button data-mode="csv">CSV</button>
+        </div>
+        <textarea id="entries-input" placeholder="Alice Chen&#10;Bob Lim&#10;Charlie Tan&#10;..." spellcheck="false"></textarea>
+        <div class="csv-column-picker" id="csv-picker" hidden>
+          <label>Column with names:
+            <select id="csv-column"></select>
+          </label>
+        </div>
+        <div class="counter"><b id="entry-count">0</b> contestants ready</div>
+      </section>
+
+      <section class="panel prizes-panel">
+        <h4>Prize Sequence</h4>
+        <p class="hint">Toggle Random ↔ Manual per prize. Orange = preset (invisible to the audience).</p>
+        <div id="prize-list" class="prize-list"></div>
+        <button class="add-prize" id="add-prize">+ Add prize</button>
+      </section>
+    </div>
+
+    <div class="validation-errors" id="validation-errors" hidden></div>
+
+    <footer class="setup-footer">
+      <div class="footer-left">
+        <button id="export-btn" class="btn-sm">↓ Export JSON</button>
+        <button id="import-btn" class="btn-sm">↑ Import JSON</button>
+        <button id="clear-btn" class="btn-sm btn-danger">Clear all</button>
+      </div>
+      <div class="footer-actions" id="footer-actions"></div>
+    </footer>
+  </main>
+
+  <!-- LIVE VIEW -->
+  <main class="live-view">
+    <div class="live-top">
+      <div class="progress" id="progress-pill">PRIZE 1 OF 1</div>
+      <button class="exit-live" data-view="setup">⚙︎ Setup</button>
+    </div>
+
+    <div class="prize-label">
+      <span class="prize-tag" id="prize-tag">Up Next</span>
+      <div class="prize-name" id="prize-name">Prize 1</div>
+    </div>
+
+    <div class="wheel-stage">
+      <div class="pointer"></div>
+      <svg id="wheel-svg" class="wheel-svg" viewBox="-150 -150 300 300"></svg>
+    </div>
+
+    <div class="controls">
+      <button id="spin-btn" class="spin-btn">SPIN</button>
+    </div>
+
+    <div class="pool-count"><b id="pool-count">0</b> contestants in the pool</div>
+
+    <div class="dim" id="winner-dialog" hidden>
+      <div class="winner-dialog">
+        <div class="confetti">🎉</div>
+        <div class="prize-row">Prize</div>
+        <div class="prize-lbl" id="dialog-prize"></div>
+        <div class="winner-row">Winner</div>
+        <div class="winner-name" id="dialog-winner"></div>
+        <button class="next-btn" id="next-prize-btn">Next Prize →</button>
+      </div>
+    </div>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
