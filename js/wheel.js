@@ -44,7 +44,7 @@ export function renderWheel(svgEl, names) {
   //   chord(midRadius) ≈ 2 * midRadius * sin(π / n)
   const midRadius = 70;
   const chordAtMid = 2 * midRadius * Math.sin(Math.PI / n);
-  const fontSize = clamp(5, 15, chordAtMid * 0.65);
+  const fontSize = clamp(5, 11, chordAtMid * 0.5);
   const textStartR = 42;              // just outside the hub
   const textLengthBudget = 140 - textStartR - 4;
   const maxChars = Math.max(6, Math.floor(textLengthBudget / (fontSize * 0.55)));
